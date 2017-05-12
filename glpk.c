@@ -33,7 +33,7 @@ int generate_values(struct task *tasks, struct cli_args parsed_args)
 		print_log(2, "[%d]\t{%d}\t(a) %d, %d\t(b) %d, %d\n", i, current->g, 
 				current->p_a, current->q_a, current->p_b, current->q_b);
 	}
-	return lambda;
+	return 2*lambda;
 }
 
 void fill_problem(glp_prob *lp, int ia[], int ja[], double ar[], struct task tasks[],
