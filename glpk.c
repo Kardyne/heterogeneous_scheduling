@@ -194,10 +194,12 @@ void minimum_work_schedule(glp_prob *lp, struct task *tasks, struct cli_args par
 {
 	for (int i=1; i<parsed_args.task_count+1; i++)  {
 		struct task *current = &tasks[i];
-		int value = current->p_a*current->q_a;
-		if (value > current->p_b*current->q_b)
-			 value = current->p_b*current->q_b;
-		glp_set_col_bnds(lp, 1, GLP_FX, value, value);
+		int j = i+2*parsed_args.group_count;
+		if (current->p_a*current->q_a < current->p_b*current->q_b) {
+			glp_set_col_bnds(lp, j, GLP_FX, 1, 1);
+		} else {
+			glp_set_col_bnds(lp, j, GLP_FX, 0, 0);
+		}
 	}
 }
 
