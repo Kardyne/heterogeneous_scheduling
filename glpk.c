@@ -180,11 +180,12 @@ glp_get_row_ub(lp, 2*i));
 	free(sum_group_b);
 }
 
-void random_schedule(glp_prob *lp, struct cli_args parsed_args)
+void random_schedule(glp_prob *lp, struct cli_args parsed_args, int *positions)
 {
-	for (int i=1; i<parsed_args.task_count+1; i++)  {
-		double value = rand_int(0, 2);
-		glp_set_col_bnds(lp, 1, GLP_FX, value, value);
+	for (int i=1; 
+		i<parsed_args.task_count+1; i++)  {
+		int j = i+2*parsed_args.group_count;
+		glp_set_col_bnds(lp, j, GLP_FX, positions[i], positions[i]);
 	}
 }
 
