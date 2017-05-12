@@ -92,13 +92,14 @@ int lambda, struct cli_args parsed_args)
 		int k = 6*i+2*group_count+2*task_count-5;
 		int l = 4*i+2*group_count-3;
 		struct task *current = &tasks[i];
+		/* q_a row */
 		ia[k] = l;
 		ja[k] = j;
 		ar[k] = current->q_a;
 		ia[k+1] = l;
 		ja[k+1] = 2*current->g-1;
 		ar[k+1] = -1;
-
+		/* p_a row */
 		ia[k+2] = l+1;
 		ja[k+2] = j;
 		ar[k+2] = current->p_a;
@@ -125,9 +126,11 @@ int lambda, struct cli_args parsed_args)
 		int k = 2*i+2*group_count+8*task_count-1;
 		int l = 2*group_count+4*task_count+1;
 		struct task *current = &tasks[i];
+		/* sum_a row */
 		ia[k] = l;
 		ja[k] = j;
 		ar[k] = current->p_a*current->q_a;
+		/* sum_b row */
 		ia[k+1] = l+1;
 		ja[k+1] = j;
 		ar[k+1] = -current->p_b*current->q_b;
