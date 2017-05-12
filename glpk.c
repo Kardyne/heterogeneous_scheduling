@@ -83,7 +83,7 @@ int lambda, struct cli_args parsed_args)
 		ja[k+1] = j;
 		ar[k+1] = -current->p_b*current->q_b;
 		sum_group_b[current->g] += current->p_b*current->q_b;
-		sum_total_b += sum_group_b[current->g];
+		sum_total_b += current->p_b*current->q_b;
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k, i, ia[k], ja[k], ar[k]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+1, i, ia[k+1], ja[k+1], ar[k+1]);
 	}
