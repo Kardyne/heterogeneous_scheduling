@@ -89,8 +89,8 @@ int lambda, struct cli_args parsed_args)
 	}
 	for (int i = 1; i<task_count+1; i++) {
 		int j = i+2*group_count;
-		int k = 4*i+2*group_count+2*task_count-3;
-		int l = 2*i+2*group_count-1;
+		int k = 6*i+2*group_count+2*task_count-5;
+		int l = 4*i+2*group_count-3;
 		struct task *current = &tasks[i];
 		ia[k] = l;
 		ja[k] = j;
@@ -101,10 +101,18 @@ int lambda, struct cli_args parsed_args)
 
 		ia[k+2] = l+1;
 		ja[k+2] = j;
-		ar[k+2] = -current->q_b;
-		ia[k+3] = l+1;
-		ja[k+3] = 2*current->g;
-		ar[k+3] = -1;
+		ar[k+2] = current->p_a;
+		/* q_b row */
+		ia[k+3] = l+2;
+		ja[k+3] = j;
+		ar[k+3] = -current->q_b;
+		ia[k+4] = l+2;
+		ja[k+4] = 2*current->g;
+		ar[k+4] = -1;
+		/* p_b row */
+		ia[k+5] = l+3;
+		ja[k+5] = j;
+		ar[k+5] = -current->p_b;
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k, i, ia[k], ja[k], ar[k]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+1, i, ia[k+1], ja[k+1], ar[k+1]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+2, i, ia[k+2], ja[k+2], ar[k+2]);
@@ -112,8 +120,8 @@ int lambda, struct cli_args parsed_args)
 	}
 	for (int i = 1; i<task_count+1; i++) {
 		int j = i+2*group_count;
-		int k = 2*i+2*group_count+6*task_count-1;
-		int l = 2*group_count+2*task_count+1;
+		int k = 2*i+2*group_count+8*task_count-1;
+		int l = 2*group_count+4*task_count+1;
 		struct task *current = &tasks[i];
 		ia[k] = l;
 		ja[k] = j;
@@ -124,7 +132,7 @@ int lambda, struct cli_args parsed_args)
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k, i, ia[k], ja[k], ar[k]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+1, i, ia[k+1], ja[k+1], ar[k+1]);
 	}
-	glp_add_rows(lp, 2*(group_count+task_count+1));
+	glp_add_rows(lp, 2*group_count+4*task_count+2);
 	print_log(3, "Row limits\n");
 	for (int i = 1; i<group_count+1; i++) {
 		char row_name_a[15], row_name_b[15];
@@ -140,36 +148,35 @@ glp_get_row_ub(lp, 2*i-1));
 glp_get_row_ub(lp, 2*i));
 	}
 	for (int i = 1; i<task_count+1; i++) {
-		int l = 2*i+2*group_count-1;
+		int l = 4*i+2*group_count-3;
 		struct task *current = &tasks[i];
-		char row_name_a[15], row_name_b[15];
-		snprintf(row_name_a, 15, "qa_x%d", i);
-		snprintf(row_name_b, 15, "qb_x%d", i);
-
-		glp_set_row_name(lp, l, row_name_a);
-		glp_set_row_name(lp, l+1, row_name_b);
+		char row_name_qa[15], row_name_qb[15],
+			row_name_pa[15], row_name_pb[15];
+		snprintf(row_name_qa, 15, "qa_x%d", i);
+		snprintf(row_name_pa, 15, "pa_x%d", i);
+		snprintf(row_name_qb, 15, "qb_x%d", i);
+		snprintf(row_name_pb, 15, "pb_x%d", i);
+		glp_set_row_name(lp, l, row_name_qa);
+		glp_set_row_name(lp, l+1, row_name_pa);
+		glp_set_row_name(lp, l+2, row_name_qb);
+		glp_set_row_name(lp, l+3, row_name_pb);
 		glp_set_row_bnds(lp, l, GLP_UP, 0.0, 0.0);
-		glp_set_row_bnds(lp, l+1, GLP_UP, 0.0, -current->q_b);
-		print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", l, 0.0, 
-glp_get_row_ub(lp, l));
-		print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", l+1, 0.0, 
-glp_get_row_ub(lp, l+1));
+		glp_set_row_bnds(lp, l+1, GLP_UP, 0.0, lambda);
+		glp_set_row_bnds(lp, l+2, GLP_UP, 0.0, -current->q_b);
+		glp_set_row_bnds(lp, l+3, GLP_UP, 0.0, lambda-current->p_b);
+		print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", l, 0.0, glp_get_row_ub(lp, l));
+		print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", l+1, 0.0, glp_get_row_ub(lp, l+1));
 	}
-	double sum = 0;
-	for (int i = 1; i<group_count+1; i++) {
-		sum_total_b += sum_group_b[i];
-	}
-	glp_set_row_name(lp, 2*(group_count+task_count)+1, "sum_a");
-	glp_set_row_name(lp, 2*(group_count+task_count)+2, "sum_b");
-	glp_set_row_bnds(lp, 2*(group_count+task_count)+1, GLP_UP, 0.0, 
-lambda*parsed_args.cpu_count_a);
-	glp_set_row_bnds(lp, 2*(group_count+task_count)+2, GLP_UP, 0.0, 
-lambda*parsed_args.cpu_count_b-sum);
-	print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", 2*(group_count+task_count)+1, 0.0, 
-glp_get_row_ub(lp, 2*(group_count+task_count)+1));
-	print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", 2*(group_count+task_count)+2, 0.0, 
-glp_get_row_ub(lp, 2*(group_count+task_count)+2));
-	glp_load_matrix(lp, 2*group_count+8*task_count, ia, ja, ar);
+	glp_set_row_name(lp, 2*group_count+4*task_count+1, "sum_a");
+	glp_set_row_name(lp, 2*group_count+4*task_count+2, "sum_b");
+	glp_set_row_bnds(lp, 2*group_count+4*task_count+1, GLP_UP, 0.0, 
+		lambda*parsed_args.cpu_count_a);
+	glp_set_row_bnds(lp, 2*group_count+4*task_count+2, GLP_UP, 0.0, 
+		lambda*parsed_args.cpu_count_b-sum_total_b);
+	print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", 2*group_count+4*task_count+1, 0.0, glp_get_row_ub(lp, 2*group_count+4*task_count+1));
+	print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", 2*group_count+4*task_count+2, 0.0, glp_get_row_ub(lp, 2*group_count+4*task_count+2));
+
+	glp_load_matrix(lp, 2*group_count+10*task_count, ia, ja, ar);
 	free(sum_group_b);
 }
 
