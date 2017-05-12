@@ -24,24 +24,45 @@ int main(int argc, char **argv)
 	if (log_level >= 1)
 		glp_write_lp(lp, NULL, "scheduling.lp");
 	for (int i = 1; i<task_count+1; i++) {
-		print_log(1, "%s=%d\n", glp_get_col_name(lp, i+2*group_count), 
-(int) round(glp_get_col_prim(lp, i+2*group_count)));
+		print_log(2, "%s=%d\n", 
+			glp_get_col_name(lp, i+2*group_count), 
+			(int) round(glp_get_col_prim(lp, i+2*group_count)));
 	}
 	for (int i = 1; i<2*group_count+1; i++) {
-		print_log(1, "%s=%d\n", glp_get_col_name(lp, i), (int) round(glp_get_col_prim(lp, 
-i)));
+		print_log(2, "%s=%d\n", 
+			glp_get_col_name(lp, i), 
+			(int) round(glp_get_col_prim(lp, i)));
+	}
+	char method_name[17], output[21];
+	if (lambda == -1) {
+		snprintf(output, 21, "NO SOLUTION FOUND");
+	} else {
+		snprintf(output, 21, "%-10d%-10d", 
+			(int) round(glp_get_obj_val(lp)), lambda);
 	}
 	switch(parsed_args.experience_type) {
 	case 0:
-		printf("opt: %d, %d", (int) round(glp_get_obj_val(lp)), lambda);
+		snprintf(method_name, 17, "opt_l");
 		break;
 	case 1:
-		printf("random: %d, %d", (int) round(glp_get_obj_val(lp)), lambda);
+		snprintf(method_name, 17, "random");
 		break;
 	case 2:
-		printf("min_work: %d, %d", (int) round(glp_get_obj_val(lp)), lambda);
+		snprintf(method_name, 17, "min_work");
 		break;
 	}
+	print_log(1, "%-16s%-20s", method_name, output);
+	if (log_level == 0)
+		printf("%-6d%-6d%-8d%-12d%-8d%-6d%-6d%-6d%-8d",
+			parsed_args.cpu_count_a,
+			parsed_args.cpu_count_b,
+			parsed_args.group_count,
+			parsed_args.task_count,
+			parsed_args.max_task_time,
+			parsed_args.seed,
+			parsed_args.experience_type,
+			(int) round(glp_get_obj_val(lp)),
+			lambda);
 	glp_delete_prob(lp);
 	glp_free_env();
 	free(ia);

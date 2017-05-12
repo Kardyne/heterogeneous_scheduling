@@ -12,7 +12,7 @@ int print_log(int level, const char *format, ...)
 	va_list args;
 	va_start(args, format);
 	if (log_level >= level)
-		return_value = vprintf(format, args);
+		return_value = vfprintf(stderr, format, args);
 	va_end(args);
 	return return_value;
 }
@@ -48,8 +48,7 @@ struct cli_args parse_args(int argc, char **argv)
 			log_level = atoi(optarg);
 			break;
 		default:
-			fprintf(stderr, "Usage: %s -a cpu_count_a -b cpu_count_b -e experience_type -g group_count -n task_count -s seed -t max_task_time -v log_level\n", 
-argv[0]);
+			fprintf(stderr, "Usage: %s -a cpu_count_a -b cpu_count_b -e experience_type -g group_count -n task_count -s seed -t max_task_time -v log_level\n", argv[0]);
 			exit(EXIT_FAILURE);
 		}
 	}

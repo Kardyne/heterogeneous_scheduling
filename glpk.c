@@ -117,6 +117,8 @@ int lambda, struct cli_args parsed_args)
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+1, i, ia[k+1], ja[k+1], ar[k+1]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+2, i, ia[k+2], ja[k+2], ar[k+2]);
 		print_log(3, "(%d)[%d] %d, %d, %f\n", k+3, i, ia[k+3], ja[k+3], ar[k+3]);
+		print_log(3, "(%d)[%d] %d, %d, %f\n", k+4, i, ia[k+4], ja[k+4], ar[k+4]);
+		print_log(3, "(%d)[%d] %d, %d, %f\n", k+5, i, ia[k+5], ja[k+5], ar[k+5]);
 	}
 	for (int i = 1; i<task_count+1; i++) {
 		int j = i+2*group_count;
@@ -142,10 +144,8 @@ int lambda, struct cli_args parsed_args)
 		glp_set_row_name(lp, 2*i, row_name_b);
 		glp_set_row_bnds(lp, 2*i-1, GLP_UP, 0.0, 0.0);
 		glp_set_row_bnds(lp, 2*i, GLP_UP, 0.0, -sum_group_b[i]);
-		print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", 2*i-1, 0.0, 
-glp_get_row_ub(lp, 2*i-1));
-		print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", 2*i, 0.0, 
-glp_get_row_ub(lp, 2*i));
+		print_log(3, "(%d) (a)\t %f\t<= \t<= %f\n", 2*i-1, 0.0, glp_get_row_ub(lp, 2*i-1));
+		print_log(3, "(%d) (b)\t %f\t<= \t<= %f\n", 2*i, 0.0, glp_get_row_ub(lp, 2*i));
 	}
 	for (int i = 1; i<task_count+1; i++) {
 		int l = 4*i+2*group_count-3;
@@ -219,9 +219,6 @@ cli_args parsed_args, int lb, int ub)
 		glp_smcp param;
 		glp_init_smcp(&param);
 		switch(log_level) {
-		case 0:
-			param.msg_lev = GLP_MSG_OFF;
-			break;
 		case 1:
 			param.msg_lev = GLP_MSG_ERR;
 			break;
@@ -230,6 +227,9 @@ cli_args parsed_args, int lb, int ub)
 			break;
 		case 3:
 			param.msg_lev = GLP_MSG_ALL;
+			break;
+		default:
+			param.msg_lev = GLP_MSG_OFF;
 			break;
 		}
 		lambda = (upper_bound + lower_bound)/2;
@@ -246,7 +246,8 @@ cli_args parsed_args, int lb, int ub)
 			minimum_work_schedule(lp, tasks, parsed_args);
 			break;
 		}
-		print_log(2, "[%d, %d]: %d\n", upper_bound, lower_bound, lambda);
+		print_log(2, "[%d, %d]: %d\n", 
+			upper_bound, lower_bound, lambda);
 		glp_simplex(lp, &param);
 		if (glp_get_status(lp) == GLP_OPT) {
 			upper_bound = lambda;
