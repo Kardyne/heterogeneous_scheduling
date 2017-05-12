@@ -42,7 +42,7 @@ int lambda, struct cli_args parsed_args)
 	int group_count = parsed_args.group_count;
 	int task_count = parsed_args.task_count;
 	double *sum_group_b = calloc(group_count+1, sizeof(double));
-	double sum_total_b;
+	double sum_total_b = 0.0;
 	glp_add_cols(lp, 2*group_count+task_count);
 	print_log(3, "Matrix coef\n");
 	for (int i = 1; i<group_count+1; i++) {
