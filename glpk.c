@@ -214,6 +214,7 @@ cli_args parsed_args, int lb, int ub)
 			positions[i] = rand_int(0, 2);;
 		}
 	}
+	bool sol_found = false;
 	while (upper_bound-lower_bound > 1) {
 		glp_smcp param;
 		glp_init_smcp(&param);
@@ -249,9 +250,15 @@ cli_args parsed_args, int lb, int ub)
 		glp_simplex(lp, &param);
 		if (glp_get_status(lp) == GLP_OPT) {
 			upper_bound = lambda;
+			sol_found = true;
 		} else {
 			lower_bound = lambda;
 		}
 	}
-	return lambda;
+	if(!sol_found) {
+		print_log(1, "NO SOLUTION FOUND\tlambda: %d\t\tlb: %d | %d\t\tub: %d | %d\n", 
+			lambda, lb, lower_bound, ub, upper_bound);
+		return -1;
+	}
+	return upper_bound;
 }
