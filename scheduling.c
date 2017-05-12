@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <glpk.h>
-#include <time.h>
 #include <math.h>
 #include "io.h"
 #include "glpk.h"
@@ -16,8 +15,8 @@ int main(int argc, char **argv)
 	int *ja = calloc(array_size, sizeof(int));
 	double *ar = calloc(array_size, sizeof(double));
 	struct task *tasks = calloc(task_count+1, sizeof(struct task));
+	srand48(parsed_args.seed);
 	int upper_bound = generate_values(tasks, parsed_args), lower_bound = 0;
-	srand(parsed_args.seed);
 	print_log(2, "Array size:%d\n", array_size);
 	print_log(2, "Line count:%d\n", 2*(group_count+task_count+1));
 	print_log(2, "Lambda upper bound: %d\n", upper_bound);
