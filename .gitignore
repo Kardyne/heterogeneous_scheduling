@@ -2,3 +2,8 @@
 scheduling
 *.txt
 *.lp
+.RData
+Rplots.pdf
+*.png
+*.bak
+*.csv
