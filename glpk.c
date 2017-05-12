@@ -1,5 +1,6 @@
+#include <stdlib.h>
+#include <stdbool.h>
 #include <glpk.h>
-#include <time.h>
 #include <math.h>
 #include "io.h"
 #include "glpk.h"
@@ -9,7 +10,7 @@
 
 int rand_int(int min, int max)
 {
-	return rand()%(max-min)+min;
+	return lrand48()%(max-min)+min;
 }
 
 int generate_values(struct task *tasks, struct cli_args parsed_args)
