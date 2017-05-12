@@ -205,6 +205,13 @@ int dichotomy(glp_prob *lp, int *ia, int *ja, double *ar, struct task *tasks, st
 cli_args parsed_args, int lb, int ub)
 {
 	int lower_bound = lb, upper_bound = ub, lambda = 0;
+	int *positions = NULL;
+	if (parsed_args.experience_type == RANDOM_TYPE) {
+		positions = calloc(parsed_args.task_count+1, sizeof(int));
+		for (int i=1; i<parsed_args.task_count+1; i++) {
+			positions[i] = rand_int(0, 2);;
+		}
+	}
 	while (upper_bound-lower_bound > 1) {
 		glp_smcp param;
 		glp_init_smcp(&param);
@@ -230,7 +237,7 @@ cli_args parsed_args, int lb, int ub)
 		fill_problem(lp, ia, ja, ar, tasks, lambda, parsed_args);
 		switch(parsed_args.experience_type) {
 		case RANDOM_TYPE:
-			random_schedule(lp, parsed_args);
+			random_schedule(lp, parsed_args, positions);
 			break;
 		case MIN_WORK_TYPE:
 			minimum_work_schedule(lp, tasks, parsed_args);
